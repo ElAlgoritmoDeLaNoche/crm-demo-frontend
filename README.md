@@ -47,6 +47,14 @@ Redeploya después de cambiar la variable: Vite la integra al compilar, no en ti
 
 Railway debe permitir `FRONTEND_ORIGIN=https://crm-demo-frontend-ivory.vercel.app`. El desarrollo con `pnpm dev` permanece local. La navegación actual usa estado de React, no rutas de navegador; no requiere rewrites SPA adicionales.
 
+## Compartir la demo
+
+La landing pública incluye título y descripción en español, URL canónica, Open Graph, tarjeta de X/Twitter y datos estructurados que identifican el sitio como una **demo**, sin credenciales ni datos privados. La vista previa usa `public/og-image.png` (1200 × 630), con fuente editable en `public/og-image.svg`.
+
+Favicons, icono de Apple y manifest con apertura en navegador complementan la identidad; no se agrega service worker ni se promete funcionamiento sin conexión. `robots.txt` y `sitemap.xml` publican únicamente la raíz: el espacio privado conserva la navegación interna y la autenticación existentes. Robots no reemplaza controles de acceso.
+
+Después de redesplegar en Vercel, comparte `https://crm-demo-frontend-ivory.vercel.app/`. Comprueba que `/og-image.png` devuelve la imagen y que el HTML contiene las etiquetas antes de ejecutar JavaScript. Si cambias el dominio, actualiza las URLs de `index.html`, `public/robots.txt`, `public/sitemap.xml` y sus pruebas. Las plataformas de mensajería pueden conservar una vista previa anterior en caché; la actualización no siempre es inmediata.
+
 ## Verificación
 
 ```sh
