@@ -1,0 +1,103 @@
+:root {
+  color-scheme: light;
+  --canvas: #f7f8f4;
+  --surface: #ffffff;
+  --surface-soft: #eff2ea;
+  --text: #253c33;
+  --muted: #59685e;
+  --line: #dce3d9;
+  --accent: #7a6032;
+  --action-bg: #203d32;
+  --action-text: #ffffff;
+  --badge-bg: #eaf1e5;
+  --badge-text: #3e5f3b;
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --canvas: #101a17;
+  --surface: #192720;
+  --surface-soft: #22342b;
+  --text: #edf3e8;
+  --muted: #b4c5b8;
+  --line: #374b3e;
+  --accent: #d6bb82;
+  --action-bg: #c6dcb6;
+  --action-text: #142419;
+  --badge-bg: #2e4533;
+  --badge-text: #d4e9ca;
+}
+:root, body, .workspace, .workspace-main, .content, .landing, .login-page {
+  background: var(--canvas);
+  color: var(--text);
+}
+.sidebar, .topbar, .panel, .stat-card, .property-card, .table-wrap,
+.deal-card, .modal, .landing-nav, .login-panel, input, textarea, select {
+  background: var(--surface);
+  color: var(--text);
+  border-color: var(--line);
+}
+.sidebar-note, .pipeline-column, .demo-note, th, .date-chip, .chart-track,
+.filter-pills button.active, .sidebar nav button:hover, .avatar {
+  background: var(--surface-soft);
+  color: var(--text);
+  border-color: var(--line);
+}
+.btn.dark, .sidebar nav button.active {
+  background: var(--action-bg);
+  color: var(--action-text);
+}
+.btn.dark:hover { filter: brightness(1.12); background: var(--action-bg); }
+.btn.cream { background: #f8f5ed; color: #203d32; }
+.btn.outline { background: var(--surface); color: var(--text); border-color: var(--line); }
+.badge, .floating { background: var(--badge-bg); color: var(--badge-text); }
+.badge.gold { background: var(--surface-soft); color: var(--accent); }
+.brand, .brand small, .breadcrumbs strong, td strong, .property-price,
+.stat-card h2, .sidebar-note h3, .profile-button strong, .icon-button {
+  color: var(--text);
+}
+.muted, label small, .loading, .empty, .sidebar-label, .sidebar nav button,
+.sidebar-note p, .sidebar-footer, .sidebar-footer span, .breadcrumbs,
+.search-box input, .search-box, .search-box kbd, .profile-button small,
+.stat-card > div, .stat-card p, .chart-column > span, .chart-column > strong,
+.chart-summary, .chart-summary strong, .agenda-item p, .agenda-link,
+.activity-item, .activity-item small, .workspace-footer, .filter-pills button,
+.property-price span, .location, .property-specs, .card-actions button, td, td small,
+th, .pipeline-total, .pipeline-column header > span:last-child,
+.intro > div p, .landing-cards article > p:last-child, .landing footer > span,
+.demo-note { color: var(--muted); }
+.eyebrow, .gold-text, .text-button { color: var(--accent); }
+.hero-copy, .hero-copy .eyebrow, .login-photo, .login-photo .eyebrow,
+.landing-cta, .landing-cta .eyebrow { color: #f7f0df; }
+.spotlight-card > div, .spotlight-card h3 { color: #ffffff; }
+.sidebar-footer, .topbar, .agenda-item, .activity-item, td, .pipeline-column,
+.deal-card, .chart-summary, .property-specs, .workspace-footer, .modal-actions,
+.profile-button, .agenda-square { border-color: var(--line); }
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 9px 12px;
+  min-height: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--text);
+  font-size: 12px;
+}
+.theme-toggle > span:first-child { font-size: 19px; line-height: 1; }
+.login-panel > .theme-toggle { align-self: flex-end; margin-bottom: 24px; }
+input::placeholder { color: var(--muted); }
+.error { background: #fff0ed; color: #963528; }
+:root[data-theme="dark"] .error { background: #432b29; color: #ffd2c6; }
+@media (max-width: 640px) {
+  .topbar .theme-toggle { padding: 7px; min-width: 34px; }
+  .topbar .theme-toggle > span:last-child { display: none; }
+  .landing-links { gap: 8px; }
+  .landing-links .theme-toggle { padding: 7px 9px; font-size: 10px; }
+  .topbar .search-box { width: 90px; }
+}
+.sidebar-note { overflow: hidden; }
+.sidebar-note h3 { overflow-wrap: anywhere; font-size: clamp(20px, 1.7vw, 26px); }
+.sidebar-note p { position: relative; z-index: 1; }
