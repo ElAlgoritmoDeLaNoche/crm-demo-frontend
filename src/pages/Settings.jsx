@@ -61,7 +61,7 @@ export default function Settings({ token, user, onUpdate }) {
         <h2>Acerca de este espacio</h2>
         <p>Aurelia Estates · CRM inmobiliario privado</p>
         <p className="muted">
-          Todos los importes se muestran en USD. Las imágenes se guardan en el servidor de la API.
+          Todos los importes se muestran en pesos mexicanos (MXN). Las imágenes se guardan en el servidor de la API.
           Tu sesión vence después de ocho horas.
         </p>
       </section>

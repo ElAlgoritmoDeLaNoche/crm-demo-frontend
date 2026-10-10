@@ -1,13 +1,15 @@
 export const money = (value) =>
   new Intl.NumberFormat("es-MX", {
     style: "currency",
-    currency: "USD",
+    currency: "MXN",
+    currencyDisplay: "code",
     maximumFractionDigits: 0,
   }).format(value || 0);
 export const compact = (value) =>
   new Intl.NumberFormat("es-MX", {
     style: "currency",
-    currency: "USD",
+    currency: "MXN",
+    currencyDisplay: "code",
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(value || 0);

@@ -9,7 +9,7 @@ const fields = {
     ["company", "Empresa"],
     ["type", "Tipo", ["Buyer", "Seller", "Investor", "Partner"]],
     ["status", "Estado", ["New", "Active", "Qualified", "Inactive"]],
-    ["budget", "Presupuesto", "number"],
+    ["budget", "Presupuesto (MXN)", "number"],
     ["notes", "Notas", "textarea"],
   ],
   properties: [
@@ -22,7 +22,7 @@ const fields = {
       ["Villa", "Apartment", "Penthouse", "House", "Commercial", "Land"],
     ],
     ["status", "Estado", ["Available", "Under offer", "Sold", "Rented"]],
-    ["price", "Precio de venta", "number"],
+    ["price", "Precio de venta (MXN)", "number"],
     ["bedrooms", "Habitaciones", "number"],
     ["bathrooms", "Baños", "number"],
     ["area", "Superficie (m²)", "number"],
@@ -33,7 +33,7 @@ const fields = {
     ["title", "Título de la oportunidad"],
     ["contactName", "Cliente"],
     ["propertyTitle", "Propiedad"],
-    ["value", "Valor de la oportunidad", "number"],
+    ["value", "Valor de la oportunidad (MXN)", "number"],
     [
       "stage",
       "Etapa",

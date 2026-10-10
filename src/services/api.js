@@ -1,4 +1,6 @@
-const base = import.meta.env.VITE_API_URL || "http://localhost:4000/api";
+import { resolveApiBase } from "./apiConfig.js";
+
+const base = resolveApiBase(import.meta.env.VITE_API_URL, import.meta.env.PROD);
 export const mediaUrl = (url) =>
   url?.startsWith("/uploads/") ? base.replace(/\/api\/?$/, "") + url : url;
 export async function api(path, { token, method = "GET", body } = {}) {
