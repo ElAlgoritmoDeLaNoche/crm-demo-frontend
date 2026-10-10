@@ -19,8 +19,8 @@ import { readFileSync } from 'node:fs';
 test('translated select labels keep original submitted values', () => {
  const form=readFileSync(new URL('../src/components/RecordForm.jsx',import.meta.url),'utf8');
  const collection=readFileSync(new URL('../src/pages/Collection.jsx',import.meta.url),'utf8');
- assert.match(form,/<option key=\{x\} value=\{x\}>\{enumLabel\(x\)\}/);
- assert.match(collection,/<option key=\{x\} value=\{x\}>\{label\(x\)\}/);
+ assert.match(form,/<option key=\{x\} value=\{x\}>\s*\{enumLabel\(x\)\}/);
+ assert.match(collection,/<option key=\{x\} value=\{x\}>\s*\{label\(x\)\}/);
 });
 test('collection hook returns the public records property',()=>{
  const source=readFileSync(new URL('../src/hooks/useCollection.js',import.meta.url),'utf8');

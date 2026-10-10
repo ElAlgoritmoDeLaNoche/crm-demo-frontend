@@ -1,5 +1,7 @@
+import { api } from "../services/api";
+import { linkedPayload } from "../utils/commercial";
 import { label as enumLabel, resourceLabel } from "../utils/labels";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Icon from "./Icon";
 const fields = {
   contacts: [
@@ -28,11 +30,13 @@ const fields = {
     ["area", "Superficie (m²)", "number"],
     ["description", "Descripción", "textarea"],
     ["featured", "Propiedad destacada", "checkbox"],
+    ["published", "Publicar en la colección y habilitar captación", "checkbox"],
   ],
   deals: [
     ["title", "Título de la oportunidad"],
-    ["contactName", "Cliente"],
-    ["propertyTitle", "Propiedad"],
+    ["contactId", "Cliente vinculado", "contacts"],
+    ["propertyId", "Propiedad vinculada", "properties"],
+    ["commissionRate", "Comisión estimada (%)", "number"],
     ["value", "Valor de la oportunidad (MXN)", "number"],
     [
       "stage",
@@ -49,10 +53,18 @@ const fields = {
     ["dueDate", "Fecha de vencimiento", "date"],
     ["priority", "Prioridad", ["Low", "Medium", "High"]],
     ["status", "Estado", ["Pending", "In progress", "Completed"]],
-    ["relatedTo", "Cliente o propiedad relacionada"],
+    ["contactId", "Cliente vinculado", "contacts"],
+    ["propertyId", "Propiedad vinculada", "properties"],
+    ["dealId", "Oportunidad vinculada", "deals"],
   ],
 };
-export default function RecordForm({ resource, record, onSave, onClose }) {
+export default function RecordForm({
+  resource,
+  record,
+  token,
+  onSave,
+  onClose,
+}) {
   const [data, setData] = useState(() =>
       Object.fromEntries(
         fields[resource]
@@ -62,7 +74,9 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
               (Array.isArray(type)
                 ? type[0]
                 : type === "number"
-                  ? 0
+                  ? key === "commissionRate"
+                    ? 3
+                    : 0
                   : type === "checkbox"
                     ? false
                     : ""),
@@ -78,11 +92,33 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
     [files, setFiles] = useState([]),
     [error, setError] = useState(""),
     [saving, setSaving] = useState(false);
+  const [references, setReferences] = useState({}),
+    [referenceError, setReferenceError] = useState("");
+  useEffect(() => {
+    let live = true;
+    if (!["deals", "tasks"].includes(resource)) return;
+    const names =
+      resource === "tasks"
+        ? ["contacts", "properties", "deals"]
+        : ["contacts", "properties"];
+    Promise.all(
+      names.map((n) => api("/" + n, { token }).then((rows) => [n, rows])),
+    )
+      .then((entries) => {
+        if (live) setReferences(Object.fromEntries(entries));
+      })
+      .catch((e) => {
+        if (live) setReferenceError(e.message);
+      });
+    return () => {
+      live = false;
+    };
+  }, [resource, token]);
   async function submit(e) {
     e.preventDefault();
     setSaving(true);
     try {
-      await onSave(data, files);
+      await onSave(linkedPayload(data), files);
       onClose();
     } catch (e) {
       setError(e.message);
@@ -107,8 +143,7 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
           <div>
             <p className="eyebrow">TU ESPACIO DE TRABAJO</p>
             <h2>
-              {record ? "Editar" : "Crear"}{" "}
-              {resourceLabel(resource, true)}
+              {record ? "Editar" : "Crear"} {resourceLabel(resource, true)}
             </h2>
           </div>
           <button
@@ -127,7 +162,25 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
                 className={type === "textarea" ? "span-two" : ""}
               >
                 {label}
-                {Array.isArray(type) ? (
+                {["contacts", "properties", "deals"].includes(type) ? (
+                  <select
+                    value={data[key] || ""}
+                    onChange={(e) =>
+                      setData({ ...data, [key]: e.target.value })
+                    }
+                  >
+                    <option value="">Sin vínculo</option>
+                    {data[key] &&
+                      !references[type]?.some((r) => r._id === data[key]) && (
+                        <option value={data[key]}>Vínculo actual</option>
+                      )}
+                    {(references[type] || []).map((r) => (
+                      <option key={r._id} value={r._id}>
+                        {r.name || r.title}
+                      </option>
+                    ))}
+                  </select>
+                ) : Array.isArray(type) ? (
                   <select
                     value={data[key]}
                     onChange={(e) =>
@@ -135,7 +188,9 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
                     }
                   >
                     {type.map((x) => (
-                      <option key={x} value={x}>{enumLabel(x)}</option>
+                      <option key={x} value={x}>
+                        {enumLabel(x)}
+                      </option>
                     ))}
                   </select>
                 ) : type === "textarea" ? (
@@ -155,7 +210,12 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
                       key,
                     )}
                     min={type === "number" ? 0 : undefined}
-                    max={key === "probability" ? 100 : undefined}
+                    step={type === "number" ? "any" : undefined}
+                    max={
+                      ["probability", "commissionRate"].includes(key)
+                        ? 100
+                        : undefined
+                    }
                     onChange={(e) =>
                       setData({
                         ...data,
@@ -186,6 +246,20 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
               </label>
             )}
           </div>
+          {referenceError && (
+            <p className="error">
+              No se pudieron cargar los vínculos: {referenceError}
+            </p>
+          )}
+          {record &&
+            resource === "deals" &&
+            !record.contactId &&
+            record.contactName && (
+              <p className="muted">
+                Cliente anterior sin vínculo: {record.contactName}. Selecciona
+                el registro correcto para relacionarlo.
+              </p>
+            )}
           {error && (
             <p className="error" role="alert">
               {error}
@@ -203,8 +277,7 @@ export default function RecordForm({ resource, record, onSave, onClose }) {
             <button className="btn dark" disabled={saving}>
               {saving
                 ? "Guardando…"
-                : "Guardar " +
-                  resourceLabel(resource, true)}
+                : "Guardar " + resourceLabel(resource, true)}
             </button>
           </div>
         </form>

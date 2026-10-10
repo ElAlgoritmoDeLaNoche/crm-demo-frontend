@@ -16,7 +16,9 @@ export async function api(path, { token, method = "GET", body } = {}) {
       body: body ? (form ? body : JSON.stringify(body)) : undefined,
     });
   } catch {
-    throw new Error("No se puede conectar con la API. Comprueba que el servidor esté activo.");
+    throw new Error(
+      "No se puede conectar con la API. Comprueba que el servidor esté activo.",
+    );
   }
   if (response.status === 204) return null;
   const data = await response.json();
@@ -27,3 +29,5 @@ export async function api(path, { token, method = "GET", body } = {}) {
   }
   return data;
 }
+export const publicPdfUrl = (id) =>
+  base + `/public/properties/${encodeURIComponent(id)}/pdf`;

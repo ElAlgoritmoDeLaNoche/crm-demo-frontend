@@ -1,3 +1,5 @@
+import PublicProperty from "./pages/PublicProperty";
+import Followups from "./pages/Followups";
 import { useState, useCallback, useEffect } from "react";
 import ThemeToggle from "./components/ThemeToggle";
 import Logo from "./components/Logo";
@@ -18,6 +20,7 @@ const navigation = [
   ["contacts", "Contactos", "users"],
   ["deals", "Oportunidades", "chart"],
   ["tasks", "Tareas y agenda", "check"],
+  ["followups", "Seguimiento", "bell"],
 ];
 export default function App() {
   const [session, setSession] = useState(() => {
@@ -52,11 +55,23 @@ export default function App() {
       if (e.status === 401) logout();
     });
   }, [session?.token, logout]);
-  function navigate(p) {
+  function navigate(p, recordId = "") {
     setPage(p);
-    setSearch("");
+    setSearch(recordId);
     setMobile(false);
   }
+  const propertyId = new URLSearchParams(window.location.search).get(
+    "property",
+  );
+  if (propertyId)
+    return (
+      <PublicProperty
+        id={propertyId}
+        onBack={() => {
+          window.location.href = "/";
+        }}
+      />
+    );
   if (!session)
     return view === "landing" ? (
       <Landing onEnter={() => setView("login")} />
@@ -144,8 +159,8 @@ export default function App() {
             </div>
             <button
               className="icon-button notification-button"
-              onClick={() => navigate("tasks")}
-              aria-label="Abrir agenda"
+              onClick={() => navigate("followups")}
+              aria-label="Abrir seguimiento"
             >
               <Icon name="bell" />
               <i />
@@ -170,6 +185,8 @@ export default function App() {
               onNavigate={navigate}
               onExpired={logout}
             />
+          ) : page === "followups" ? (
+            <Followups token={session.token} onNavigate={navigate} />
           ) : page === "settings" ? (
             <Settings
               token={session.token}

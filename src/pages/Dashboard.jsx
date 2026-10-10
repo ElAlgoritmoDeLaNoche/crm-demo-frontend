@@ -1,7 +1,7 @@
 import { label } from "../utils/labels";
 import { useState, useEffect } from "react";
 import { api, mediaUrl } from "../services/api";
-import { compact, date } from "../utils/format";
+import { compact, date, money } from "../utils/format";
 import Icon from "../components/Icon";
 const today = new Date().toLocaleDateString("es-MX", {
   weekday: "long",
@@ -34,9 +34,7 @@ export default function Dashboard({ token, user, onNavigate, onExpired }) {
             Bienvenido, {user.name.split(" ")[0]}
             <span className="gold-text">.</span>
           </h1>
-          <p className="muted">
-            Esto está pasando en tu mundo inmobiliario.
-          </p>
+          <p className="muted">Esto está pasando en tu mundo inmobiliario.</p>
         </div>
         <div className="date-chip">{today}</div>
       </div>
@@ -83,6 +81,48 @@ export default function Dashboard({ token, user, onNavigate, onExpired }) {
               </article>
             ))}
           </div>
+          {data.sales && (
+            <section className="panel commercial-summary">
+              <div className="section-heading">
+                <h2>Resultados comerciales</h2>
+                <button
+                  className="text-button"
+                  onClick={() => onNavigate("followups")}
+                >
+                  Ver seguimiento ↗
+                </button>
+              </div>
+              <div className="commercial-metrics">
+                <div>
+                  <span>Cierres ganados</span>
+                  <strong>{data.sales.wonCount}</strong>
+                </div>
+                <div>
+                  <span>Tasa de cierre (ganadas / cerradas)</span>
+                  <strong>{data.sales.closeRate}%</strong>
+                </div>
+                <div>
+                  <span>Comisión estimada de cartera activa</span>
+                  <strong>{money(data.sales.estimatedCommission)}</strong>
+                </div>
+                <div>
+                  <span>Comisión estimada de ventas ganadas</span>
+                  <strong>{money(data.sales.realizedCommission)}</strong>
+                </div>
+              </div>
+              <p className="muted">
+                Estimaciones según el porcentaje de cada oportunidad; no son
+                ingresos cobrados ni registros contables.
+              </p>
+              <button
+                className="text-button"
+                onClick={() => onNavigate("followups")}
+              >
+                {data.sales.staleDeals.length} oportunidades sin actividad ·{" "}
+                {data.sales.overdueTasks.length} tareas vencidas ↗
+              </button>
+            </section>
+          )}
           <div className="dashboard-grid">
             <section className="panel pipeline-overview">
               <div className="section-heading">
@@ -164,7 +204,8 @@ export default function Dashboard({ token, user, onNavigate, onExpired }) {
                     <div>
                       <strong>{t.title}</strong>
                       <p>
-                        {date(t.dueDate)} · {t.relatedTo || "Tu espacio de trabajo"}
+                        {date(t.dueDate)} ·{" "}
+                        {t.relatedTo || "Tu espacio de trabajo"}
                       </p>
                     </div>
                     <span

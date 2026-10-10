@@ -1,3 +1,7 @@
+import { useEffect, useState } from "react";
+import { api, mediaUrl } from "../services/api";
+import { money } from "../utils/format";
+import { propertyShareUrl } from "../utils/commercial";
 import ThemeToggle from "../components/ThemeToggle";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
@@ -5,12 +9,31 @@ const currentYear = new Date().getFullYear();
 const hero =
   "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=2400&q=90";
 export default function Landing({ onEnter }) {
+  const [properties, setProperties] = useState([]),
+    [error, setError] = useState(""),
+    [loading, setLoading] = useState(true);
+  useEffect(() => {
+    let live = true;
+    api("/public/properties")
+      .then((p) => {
+        if (live) setProperties(p);
+      })
+      .catch((e) => {
+        if (live) setError(e.message);
+      })
+      .finally(() => {
+        if (live) setLoading(false);
+      });
+    return () => {
+      live = false;
+    };
+  }, []);
   return (
     <div className="landing">
       <nav className="landing-nav">
         <Logo />
         <div className="landing-links">
-        <ThemeToggle />
+          <ThemeToggle />
           <a href="#collection">Nuestra colección</a>
           <a href="#approach">Nuestro enfoque</a>
           <button className="btn dark" onClick={onEnter}>
@@ -22,7 +45,9 @@ export default function Landing({ onEnter }) {
         <img src={hero} alt="Residencia contemporánea de lujo con piscina" />
         <div className="hero-shade" />
         <div className="hero-copy">
-          <p className="eyebrow">HOGARES EXCEPCIONALES. VIDAS EXTRAORDINARIAS.</p>
+          <p className="eyebrow">
+            HOGARES EXCEPCIONALES. VIDAS EXTRAORDINARIAS.
+          </p>
           <h1>
             Un lugar para vivir
             <br />
@@ -51,9 +76,9 @@ export default function Landing({ onEnter }) {
         </h2>
         <div>
           <p>
-            Detrás de cada propiedad excepcional hay una historia. Conectamos personas,
-            lugares y posibilidades con experiencia, atención al detalle y un
-            trato genuinamente personal.
+            Detrás de cada propiedad excepcional hay una historia. Conectamos
+            personas, lugares y posibilidades con experiencia, atención al
+            detalle y un trato genuinamente personal.
           </p>
           <button className="text-button" onClick={onEnter}>
             Descubre tu próximo capítulo <Icon name="arrow" />
@@ -71,31 +96,28 @@ export default function Landing({ onEnter }) {
           </button>
         </div>
         <div className="landing-cards">
-          {[
-            [
-              "Refugio frente al mar",
-              "Malibu, California",
-              "photo-1613490493576-7fde63acd811",
-            ],
-            [
-              "Ático junto al parque",
-              "Nueva York, Nueva York",
-              "photo-1600210492486-724fe5c67fb0",
-            ],
-            [
-              "Refugio moderno en el desierto",
-              "Palm Springs, California",
-              "photo-1600607687920-4e2a09cf159d",
-            ],
-          ].map(([title, city, id]) => (
-            <article key={title}>
-              <img
-                src={`https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=85`}
-                alt={title}
-              />
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
+          {loading && <p>Cargando colección…</p>}
+          {!loading && !error && !properties.length && (
+            <p>No hay propiedades publicadas disponibles por el momento.</p>
+          )}
+          {properties.map((p) => (
+            <article key={p._id}>
+              <a href={propertyShareUrl(p._id)}>
+                <img src={mediaUrl(p.images?.[0]) || hero} alt={p.title} />
+              </a>
               <p className="eyebrow">EXCLUSIVAMENTE AURELIA</p>
-              <h3>{title}</h3>
-              <p>{city}</p>
+              <h3>{p.title}</h3>
+              <p>
+                {p.city} · {money(p.price)}
+              </p>
+              <a className="text-button" href={propertyShareUrl(p._id)}>
+                Ver propiedad y solicitar información ↗
+              </a>
             </article>
           ))}
         </div>

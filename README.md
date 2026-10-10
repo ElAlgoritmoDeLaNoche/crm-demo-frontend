@@ -68,3 +68,13 @@ Las fotografías externas y las fuentes necesitan internet. Las cargas fallidas 
 ## Reversión
 
 Los temas y la localización son una unidad de presentación reversible mediante sus componentes, utilidades y estilos, sin modificar modelos ni identificadores de API. No se crearon commits ni PR.
+
+## Flujo comercial
+
+La landing consulta la API pública y muestra únicamente propiedades disponibles que el asesor publicó explícitamente. Abre una ficha con `/?property=<id>` para ver fotos, copiar enlace, descargar PDF y solicitar información sin sesión. El formulario crea contacto y oportunidad en el servidor con consentimiento y control de reintentos.
+
+En el CRM: **Contactos → Historial** registra notas/llamadas/visitas; **Tareas y agenda** permite vincular cliente, propiedad y oportunidad; **Seguimiento** abre tareas vencidas y oportunidades sin actividad por siete días. El resumen incluye tasa de cierre y comisiones estimadas en MXN. Los porcentajes son configurables por oportunidad; no representan cobros.
+
+Los metadatos de compartir siguen siendo generales y estáticos, no específicos por inmueble. El PDF usa fotos locales cargadas; las fotos externas de muestra permanecen en la web. No hay integraciones de email, WhatsApp o calendario externo.
+
+Después de redesplegar ambos proyectos, ejecuta la migración indicada en la documentación del backend o publica manualmente las propiedades. No se despliega automáticamente desde este cambio.

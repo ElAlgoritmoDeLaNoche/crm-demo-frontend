@@ -1,3 +1,5 @@
+import ContactHistory from "../components/ContactHistory";
+import { propertyShareUrl } from "../utils/commercial";
 import { label, resourceLabel } from "../utils/labels";
 import { useState } from "react";
 import { useCollection } from "../hooks/useCollection";
@@ -19,7 +21,8 @@ export default function Collection({
   const [modal, setModal] = useState(null),
     [filter, setFilter] = useState("All"),
     [mutationError, setMutationError] = useState(""),
-    [selected, setSelected] = useState(null);
+    [selected, setSelected] = useState(null),
+    [history, setHistory] = useState(null);
   const stages = ["Lead", "Qualified", "Viewing", "Negotiation", "Won", "Lost"];
   const statuses =
     resource === "deals"
@@ -32,7 +35,16 @@ export default function Collection({
   const visible = records.filter(
     (r) =>
       (filter === "All" || (r.stage || r.status) === filter) &&
-      [JSON.stringify(r), label(r.status), label(r.stage), label(r.type), label(r.priority)].join(" ").toLowerCase().includes(search.toLowerCase()),
+      [
+        JSON.stringify(r),
+        label(r.status),
+        label(r.stage),
+        label(r.type),
+        label(r.priority),
+      ]
+        .join(" ")
+        .toLowerCase()
+        .includes(search.toLowerCase()),
   );
   async function save(body, files) {
     const r = await api("/" + resource + (modal ? "/" + modal._id : ""), {
@@ -52,13 +64,19 @@ export default function Collection({
       } catch (e) {
         await reload();
         setModal(r);
-        throw new Error("Registro guardado, pero falló la carga de imágenes: " + e.message);
+        throw new Error(
+          "Registro guardado, pero falló la carga de imágenes: " + e.message,
+        );
       }
     }
     await reload();
   }
   async function remove(r) {
-    if (!window.confirm(`¿Eliminar ${r.title || r.name}? Esta acción no se puede deshacer.`))
+    if (
+      !window.confirm(
+        `¿Eliminar ${r.title || r.name}? Esta acción no se puede deshacer.`,
+      )
+    )
       return;
     try {
       await api(`/${resource}/${r._id}`, { token, method: "DELETE" });
@@ -86,9 +104,7 @@ export default function Collection({
         <div>
           <p className="eyebrow">TU NEGOCIO, SIEMPRE CONECTADO</p>
           <h1>
-            {resource === "deals"
-              ? "Oportunidades"
-              : resourceLabel(resource)}
+            {resource === "deals" ? "Oportunidades" : resourceLabel(resource)}
           </h1>
           <p className="muted">
             {resource === "properties"
@@ -126,7 +142,9 @@ export default function Collection({
         </div>
       )}
       {loading ? (
-        <div className="loading">Cargando {resourceLabel(resource).toLowerCase()}…</div>
+        <div className="loading">
+          Cargando {resourceLabel(resource).toLowerCase()}…
+        </div>
       ) : !visible.length ? (
         <div className="empty">
           <Icon name="home" size={36} />
@@ -167,6 +185,9 @@ export default function Collection({
                 </div>
                 <div className="card-actions">
                   <button onClick={() => setSelected(r)}>Ver detalles ↗</button>
+                  {resource === "contacts" && (
+                    <button onClick={() => setHistory(r)}>Historial</button>
+                  )}
                   <button onClick={() => setModal(r)}>Editar</button>
                   <button onClick={() => remove(r)}>Eliminar</button>
                 </div>
@@ -215,10 +236,15 @@ export default function Collection({
                       onChange={(e) => stage(r, e.target.value)}
                     >
                       {stages.map((x) => (
-                        <option key={x} value={x}>{label(x)}</option>
+                        <option key={x} value={x}>
+                          {label(x)}
+                        </option>
                       ))}
                     </select>
                     <div className="card-actions">
+                      {resource === "contacts" && (
+                        <button onClick={() => setHistory(r)}>Historial</button>
+                      )}
                       <button onClick={() => setModal(r)}>Editar</button>
                       <button onClick={() => remove(r)}>Eliminar</button>
                     </div>
@@ -233,7 +259,14 @@ export default function Collection({
             <thead>
               <tr>
                 {(resource === "contacts"
-                  ? ["Cliente", "Tipo", "Estado", "Presupuesto", "Teléfono", "Acciones"]
+                  ? [
+                      "Cliente",
+                      "Tipo",
+                      "Estado",
+                      "Presupuesto",
+                      "Teléfono",
+                      "Acciones",
+                    ]
                   : [
                       "Tarea",
                       "Relacionado con",
@@ -292,6 +325,9 @@ export default function Collection({
                   )}
                   <td>
                     <div className="card-actions">
+                      {resource === "contacts" && (
+                        <button onClick={() => setHistory(r)}>Historial</button>
+                      )}
                       <button onClick={() => setModal(r)}>Editar</button>
                       <button onClick={() => remove(r)}>Eliminar</button>
                     </div>
@@ -306,9 +342,17 @@ export default function Collection({
         <RecordForm
           key={modal ? modal._id : "new"}
           resource={resource}
+          token={token}
           record={modal || null}
           onSave={save}
           onClose={() => setModal(null)}
+        />
+      )}
+      {history && (
+        <ContactHistory
+          contact={history}
+          token={token}
+          onClose={() => setHistory(null)}
         />
       )}
       {selected && (
@@ -348,6 +392,21 @@ export default function Collection({
                 </div>
               ))}
             </div>
+            {selected.published && selected.status === "Available" && (
+              <a
+                className="btn outline"
+                href={propertyShareUrl(selected._id)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                Ver ficha pública y compartir ↗
+              </a>
+            )}
+            <p className="muted">
+              {selected.published
+                ? "Publicada en la colección"
+                : "Privada: no publicada"}
+            </p>
             <h3>{money(selected.price)}</h3>
             <p>
               {selected.address}, {selected.city}
